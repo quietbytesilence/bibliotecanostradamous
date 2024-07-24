@@ -82,7 +82,6 @@ def multa(cpf, data_atual, data_entrega, prazo, isbn):
         print(f'A multa aplicada será de R$: {(atraso(data_atual, data_entrega) * dia):.2f}')
         limpa()
 
-
 def cadastrar_movimentacao(isbn, cpf, data, tipo):
     # 1 - Devolver
     # 2 - Emprestrar
@@ -94,11 +93,19 @@ def cadastrar_movimentacao(isbn, cpf, data, tipo):
             for user in users:
                 if user['User'] == cpf:
                     if tipo == 1:
-                        dbMov.update({'Atual': False}, Usuario.User == cpf)
-                        dbMov.update({'Data': False}, Usuario.User == cpf)
-                        dbMov.update({'Entrega': False}, Usuario.User == cpf)
-                        multa(cpf, data_atual(), user['Entrega'], prazo, isbn)
-                        return 0
+                        registro = dbMov.get(Query().User == cpf)
+                        if registro['Atual'] == isbn:
+                            dbMov.update({'Atual': False}, Usuario.User == cpf)
+                            dbMov.update({'Data': False}, Usuario.User == cpf)
+                            dbMov.update({'Entrega': False}, Usuario.User == cpf)
+                            multa(cpf, data_atual(), user['Entrega'], prazo, isbn)
+                            atulizar_quantidade(isbn, 1)
+                            return 0
+                        else:
+                            print(f"Usuário {consulta_user(cpf)} está com o livro {consulta_livro(registro['Atual'])}")
+                            print(f'Não há como devolver um livro não emprestado')
+                            limpa()
+                            return 0
                     elif tipo == 2:
                         livros = user['Livros Emprestados']
                         livros.append(isbn)
@@ -106,6 +113,7 @@ def cadastrar_movimentacao(isbn, cpf, data, tipo):
                         dbMov.update({'Atual': isbn}, Usuario.User == cpf)
                         dbMov.update({'Data': data}, Usuario.User == cpf)
                         dbMov.update({'Entrega': soma_dias(data, prazo)}, Usuario.User == cpf)
+                        atulizar_quantidade(isbn, 2)
                         return 0
     if tipo == 2:
             dbMov.insert({
@@ -117,7 +125,6 @@ def cadastrar_movimentacao(isbn, cpf, data, tipo):
                 })
     else:
         print(f'{consulta_user(cpf)} não pussuí empréstimos ativos')
-
 def ultimo_id():
     livros = dbLivros.all()
     if not livros:
