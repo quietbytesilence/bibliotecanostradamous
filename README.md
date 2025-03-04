@@ -6,6 +6,8 @@ O **Biblioteca Pública Nostradamous** é um sistema de gerenciamento de bibliot
 
 ---
 
+# Veja a Wiki do projeto para mais informações.
+
 ## Funcionalidades
 
 - **Cadastro de Livros**: Permite cadastrar livros com informações como título, autor, ano de publicação e número de cópias disponíveis.
